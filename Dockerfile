@@ -1,4 +1,4 @@
-FROM gallery.ecr.aws/lambda/ruby:2
+FROM public.ecr.aws/lambda/ruby:2
 
 COPY app.rb ./
 
