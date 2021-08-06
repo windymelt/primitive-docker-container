@@ -28,11 +28,13 @@ type MyResponse struct {
 func handler(request MyEvent) (MyResponse, error) {
 	var BUCKET = os.Getenv("BUCKET")
 	var KEY = fmt.Sprintf("{}.png", request.ScreenName)
+	fmt.Printf("loaded envvar")
 	// extract image file from event
 	decoded, err := b64.StdEncoding.DecodeString(request.PNGBase64)
 	if err != nil {
 		return MyResponse{URI: "", OK: false}, err
 	}
+	fmt.Printf("decoded")
 
 	// save image into temporary file
 	tmpFile, err := ioutil.TempFile("", "received*.png")
@@ -46,6 +48,7 @@ func handler(request MyEvent) (MyResponse, error) {
 		return MyResponse{URI: "", OK: false}, err
 	}
 	tmpFile.Sync()
+	fmt.Printf("wrote")
 
 	// call primitive
 	primitive := exec.Command("/primitive", "-n", "10", "-m", "1", "-i", tmpFile.Name(), "-o", "/tmp/result.png")
@@ -53,12 +56,14 @@ func handler(request MyEvent) (MyResponse, error) {
 	if err != nil {
 		return MyResponse{URI: "", OK: false}, err
 	}
+	fmt.Printf("ran primitive")
 
 	// load result image
 	resultFile, err := ioutil.ReadFile("/tmp/result.png")
 	if err != nil {
 		return MyResponse{URI: "", OK: false}, err
 	}
+	fmt.Printf("loaded image")
 
 	// upload file into S3
 	svc := s3.New(session.New(), &aws.Config{
@@ -73,6 +78,7 @@ func handler(request MyEvent) (MyResponse, error) {
 	if errpo != nil {
 		return MyResponse{URI: "", OK: false}, err
 	}
+	fmt.Printf("uploaded")
 	// return image URI
 	return MyResponse{URI: "", OK: true}, nil
 }
