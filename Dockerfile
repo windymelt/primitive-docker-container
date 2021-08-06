@@ -1,5 +1,12 @@
-FROM public.ecr.aws/lambda/ruby:2
-
-COPY app.rb ./
-
-CMD [ "app.handler" ]
+FROM public.ecr.aws/lambda/provided:al2 as build
+RUN yum install -y golang
+RUN go env -w GOPROXY=direct
+ADD go.mod go.sum ./
+RUN go mod download
+ADD . .
+RUN go build -o /main
+FROM public.ecr.aws/lambda/provided:al2
+COPY --from=build /main /main
+COPY entry.sh /
+RUN chmod 755 /entry.sh
+ENTRYPOINT [ "/entry.sh" ]
