@@ -27,43 +27,48 @@ type MyResponse struct {
 
 func handler(request MyEvent) (MyResponse, error) {
 	var BUCKET = os.Getenv("BUCKET")
-	var KEY = fmt.Sprintf("{}.png", request.ScreenName)
-	fmt.Printf("loaded envvar")
+	var KEY = fmt.Sprintf("%v.png", request.ScreenName)
+	fmt.Printf("loaded envvar\n")
 	// extract image file from event
 	decoded, err := b64.StdEncoding.DecodeString(request.PNGBase64)
 	if err != nil {
+		fmt.Printf("error occurred: %v\n", err)
 		return MyResponse{URI: "", OK: false}, err
 	}
-	fmt.Printf("decoded")
+	fmt.Printf("decoded\n")
 
 	// save image into temporary file
 	tmpFile, err := ioutil.TempFile("", "received*.png")
 	if err != nil {
+		fmt.Printf("error occurred: %v\n", err)
 		return MyResponse{URI: "", OK: false}, err
 	}
-	defer tmpFile.Close()
 	defer os.Remove(tmpFile.Name())
 	_, err = tmpFile.Write(decoded)
 	if err != nil {
+		fmt.Printf("error occurred: %v\n", err)
 		return MyResponse{URI: "", OK: false}, err
 	}
 	tmpFile.Sync()
-	fmt.Printf("wrote")
+	tmpFile.Close()
+	fmt.Printf("wrote\n")
 
 	// call primitive
 	primitive := exec.Command("/primitive", "-n", "10", "-m", "1", "-i", tmpFile.Name(), "-o", "/tmp/result.png")
 	err = primitive.Run()
 	if err != nil {
+		fmt.Printf("error occurred: %v\n", err)
 		return MyResponse{URI: "", OK: false}, err
 	}
-	fmt.Printf("ran primitive")
+	fmt.Printf("ran primitive\n")
 
 	// load result image
 	resultFile, err := ioutil.ReadFile("/tmp/result.png")
 	if err != nil {
+		fmt.Printf("error occurred: %v\n", err)
 		return MyResponse{URI: "", OK: false}, err
 	}
-	fmt.Printf("loaded image")
+	fmt.Printf("loaded image\n")
 
 	// upload file into S3
 	svc := s3.New(session.New(), &aws.Config{
@@ -76,6 +81,7 @@ func handler(request MyEvent) (MyResponse, error) {
 		ACL:    aws.String("public-read"),
 	})
 	if errpo != nil {
+		fmt.Printf("error occurred: %v", err)
 		return MyResponse{URI: "", OK: false}, err
 	}
 	fmt.Printf("uploaded")
