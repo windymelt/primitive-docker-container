@@ -27,7 +27,7 @@ type MyResponse struct {
 
 func handler(request MyEvent) (MyResponse, error) {
 	var BUCKET = os.Getenv("BUCKET")
-	var KEY = fmt.Sprintf("%v.png", request.ScreenName)
+	var KEY = fmt.Sprintf("/%v.png", request.ScreenName)
 	fmt.Printf("loaded envvar\n")
 	// extract image file from event
 	decoded, err := b64.StdEncoding.DecodeString(request.PNGBase64)
