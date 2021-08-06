@@ -48,7 +48,7 @@ func handler(request MyEvent) (MyResponse, error) {
 	tmpFile.Sync()
 
 	// call primitive
-	primitive := exec.Command("$HOME/go/bin/primitive", "-n", "10", "-m", "1", "-i", tmpFile.Name(), "-o", "/tmp/result.png")
+	primitive := exec.Command("/primitive", "-n", "10", "-m", "1", "-i", tmpFile.Name(), "-o", "/tmp/result.png")
 	err = primitive.Run()
 	if err != nil {
 		return MyResponse{URI: "", OK: false}, err
