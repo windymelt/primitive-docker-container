@@ -81,8 +81,8 @@ func handler(request MyEvent) (MyResponse, error) {
 		ACL:    aws.String("public-read"),
 	})
 	if errpo != nil {
-		fmt.Printf("error occurred: %v\n", err)
-		return MyResponse{URI: "", OK: false}, err
+		fmt.Printf("error occurred: %v\n", errpo)
+		return MyResponse{URI: "", OK: false}, errpo
 	}
 	fmt.Printf("uploaded\n")
 	// return image URI
