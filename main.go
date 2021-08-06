@@ -75,10 +75,11 @@ func handler(request MyEvent) (MyResponse, error) {
 		Region: aws.String(endpoints.ApNortheast1RegionID),
 	})
 	_, errpo := svc.PutObject(&s3.PutObjectInput{
-		Body:   bytes.NewReader(resultFile),
-		Bucket: aws.String(BUCKET),
-		Key:    aws.String(KEY),
-		ACL:    aws.String("public-read"),
+		Body:        bytes.NewReader(resultFile),
+		Bucket:      aws.String(BUCKET),
+		Key:         aws.String(KEY),
+		ACL:         aws.String("public-read"),
+		ContentType: aws.String("image/png"),
 	})
 	if errpo != nil {
 		fmt.Printf("error occurred: %v\n", errpo)
